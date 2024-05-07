@@ -39,7 +39,7 @@ public class TransfersResource {
             transferService.transfer(senderAccountId, receiverAccountId, amount);
         } catch (AccountNotFoundException e) {
             throw new NotFoundResponse(e.getMessage());
-        } catch (NotSufficientFundsException e) {
+        } catch (NotSufficientFundsException | IllegalArgumentException e) {
             throw new UnprocessableContentResponse(e.getMessage());
         }
     }

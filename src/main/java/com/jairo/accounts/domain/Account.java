@@ -1,7 +1,6 @@
 package com.jairo.accounts.domain;
 
 import com.jairo.accounts.exception.NotSufficientFundsException;
-import com.jairo.accounts.service.WithdrawalService;
 import com.jairo.accounts.service.WithdrawalService.Address;
 import com.jairo.accounts.service.WithdrawalService.WithdrawalId;
 import com.jairo.accounts.service.WithdrawalService.WithdrawalState;
@@ -42,7 +41,7 @@ public class Account {
         if (balance.compareTo(amount) >= 0) {
             balance = balance.subtract(amount);
         } else {
-            throw new NotSufficientFundsException("Current balance is " + balance.toPlainString() + " in account " + this.id);
+            throw new NotSufficientFundsException("Not sufficient funds available in account %s: current balance is %s".formatted(this.id, balance.toPlainString()));
         }
     }
 

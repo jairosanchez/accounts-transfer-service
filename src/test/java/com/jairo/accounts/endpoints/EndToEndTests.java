@@ -1,5 +1,6 @@
 package com.jairo.accounts.endpoints;
 
+import com.jairo.accounts.endpoints.dto.AccountDTO;
 import com.jairo.accounts.endpoints.dto.ExternalTransferDetails;
 import com.jairo.accounts.javalin.JavalinApp;
 import io.javalin.Javalin;
@@ -20,17 +21,19 @@ class EndToEndTests {
     private final Javalin app = new JavalinApp().getApp();
     private final JavalinJackson javalinJackson = new JavalinJackson();
 
-    private static String successfullyCreatedAccount(HttpClient client, BigDecimal initialBalance) throws IOException {
-        Response account1Response = client.post("/accounts/%s".formatted(initialBalance.toPlainString()));
-        assertThat(account1Response.code()).isEqualTo(HttpStatus.CREATED_201);
-        return account1Response.body().string();
+    private Long successfullyCreatedAccount(HttpClient client, BigDecimal initialBalance) throws IOException {
+        Response accountResponse = client.post("/accounts/%s".formatted(initialBalance.toPlainString()));
+        assertThat(accountResponse.code()).isEqualTo(HttpStatus.CREATED_201);
+        AccountDTO newAccount = javalinJackson.fromJsonString(accountResponse.body().string(), AccountDTO.class);
+        assertThat(newAccount).isNotNull();
+        return newAccount.accountId();
     }
 
     @Test
     void scenarioSuccessfulTransferBetweenInternalAccounts() {
         test(app, (server, client) -> {
-            String senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
-            String receiverAccountId = successfullyCreatedAccount(client, BigDecimal.ZERO);
+            Long senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
+            Long receiverAccountId = successfullyCreatedAccount(client, BigDecimal.ZERO);
 
             Response transferResponse = client.post("/accounts/transfer/internal/from/%s/to/%s/%s".formatted(senderAccountId, receiverAccountId, 10000));
             assertThat(transferResponse.code()).isEqualTo(HttpStatus.OK_200);
@@ -40,7 +43,7 @@ class EndToEndTests {
     @Test
     void scenarioFailedTransferFromNonExistentAccount() {
         test(app, (server, client) -> {
-            String receiverAccountId = successfullyCreatedAccount(client, BigDecimal.ZERO);
+            Long receiverAccountId = successfullyCreatedAccount(client, BigDecimal.ZERO);
 
             Response transferResponse = client.post("/accounts/transfer/internal/from/%s/to/%s/%s".formatted(999, receiverAccountId, 10000));
             assertThat(transferResponse.code()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -50,7 +53,7 @@ class EndToEndTests {
     @Test
     void scenarioFailedTransferToNonExistentAccount() {
         test(app, (server, client) -> {
-            String senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
+            Long senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
 
             Response transferResponse = client.post("/accounts/transfer/internal/from/%s/to/%s/%s".formatted(senderAccountId, 999, 10000));
             assertThat(transferResponse.code()).isEqualTo(HttpStatus.NOT_FOUND_404);
@@ -60,8 +63,8 @@ class EndToEndTests {
     @Test
     void scenarioFailedTransferBetweenInternalAccountsWhenNotEnoughFoundsInSender() {
         test(app, (server, client) -> {
-            String senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
-            String receiverAccountId = successfullyCreatedAccount(client, BigDecimal.ZERO);
+            Long senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
+            Long receiverAccountId = successfullyCreatedAccount(client, BigDecimal.ZERO);
 
             Response transferResponse = client.post("/accounts/transfer/internal/from/%s/to/%s/%s".formatted(senderAccountId, receiverAccountId, 15000.565));
             assertThat(transferResponse.code()).isEqualTo(HttpStatus.UNPROCESSABLE_ENTITY_422);
@@ -71,7 +74,7 @@ class EndToEndTests {
     @Test
     void scenarioTransferBetweenInternalAndExternalAddressAndListState() {
         test(app, (server, client) -> {
-            String senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
+            Long senderAccountId = successfullyCreatedAccount(client, BigDecimal.valueOf(15000.56));
 
             Response transfer1Response = client.post("/accounts/transfer/external/from/%s/to/%s/%s".formatted(senderAccountId, "address-1", 10000));
             assertThat(transfer1Response.code()).isEqualTo(HttpStatus.OK_200);

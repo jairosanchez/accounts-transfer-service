@@ -1,3 +1,10 @@
+### How to build and run
+
+1. Build app:
+    `mvn package`
+2. Run app (app runs on port 8080):
+   ` java -jar .\target\accounts-transfer-service-1.0-SNAPSHOT-jar-with-dependencies.jar`
+
 ### Technical notes:
 
 Given it was hinted that spring is not a preferred option, I decided to give it a go with javalin + google guice (for dependency injection). I’m quite happy with how easy and intuitive it was to create a javalin app and writing integration test, so definitely I’ll consider using it in future.
