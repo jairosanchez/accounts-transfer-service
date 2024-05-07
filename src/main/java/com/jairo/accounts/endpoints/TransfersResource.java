@@ -1,6 +1,8 @@
 package com.jairo.accounts.endpoints;
 
+import com.jairo.accounts.domain.TransferId;
 import com.jairo.accounts.endpoints.dto.ExternalTransferDetails;
+import com.jairo.accounts.endpoints.dto.TransferIdDTO;
 import com.jairo.accounts.exception.AccountNotFoundException;
 import com.jairo.accounts.exception.NotSufficientFundsException;
 import com.jairo.accounts.service.TransferService;
@@ -50,7 +52,8 @@ public class TransfersResource {
         BigDecimal amount = ctx.pathParamAsClass(PATH_PARAM_AMOUNT, BigDecimal.class).get();
 
         try {
-            transferService.transfer(senderAccountId, new Address(address), amount);
+            TransferId transferId = transferService.transfer(senderAccountId, new Address(address), amount);
+            ctx.json(new TransferIdDTO(transferId.value()));
         } catch (AccountNotFoundException e) {
             throw new NotFoundResponse();
         } catch (NotSufficientFundsException e) {

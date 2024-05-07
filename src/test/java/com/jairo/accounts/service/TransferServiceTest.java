@@ -2,6 +2,7 @@ package com.jairo.accounts.service;
 
 import com.jairo.accounts.domain.Account;
 import com.jairo.accounts.domain.RequestedExternalWithdrawal;
+import com.jairo.accounts.domain.TransferId;
 import com.jairo.accounts.exception.NotSufficientFundsException;
 import com.jairo.accounts.repository.AccountsRepository;
 import com.jairo.accounts.service.WithdrawalService.Address;
@@ -84,8 +85,10 @@ class TransferServiceTest {
 
         when(accountsRepository.findById(1l)).thenReturn(Optional.of(sender));
 
-        transferService.transfer(sender.getId(), new Address("receiver"), amountToWithdraw);
+        TransferId transferId = transferService.transfer(sender.getId(), new Address("receiver"), amountToWithdraw);
 
+        assertThat(transferId).isNotNull();
+        assertThat(transferId.value()).isNotNull();
         assertThat(sender.getRequestedExternalWithdrawals()).hasSize(1);
         assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::getAmount, RequestedExternalWithdrawal::getWithdrawalState)
                 .containsExactlyInAnyOrder(Tuple.tuple(amountToWithdraw, PROCESSING));

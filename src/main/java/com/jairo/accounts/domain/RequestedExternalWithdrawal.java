@@ -1,6 +1,5 @@
 package com.jairo.accounts.domain;
 
-import com.jairo.accounts.service.WithdrawalService;
 import com.jairo.accounts.service.WithdrawalService.Address;
 import com.jairo.accounts.service.WithdrawalService.WithdrawalId;
 import com.jairo.accounts.service.WithdrawalService.WithdrawalState;

@@ -1,6 +1,7 @@
 package com.jairo.accounts.service;
 
 import com.jairo.accounts.domain.Account;
+import com.jairo.accounts.domain.TransferId;
 import com.jairo.accounts.endpoints.dto.ExternalTransferDetails;
 import com.jairo.accounts.exception.AccountNotFoundException;
 import com.jairo.accounts.repository.AccountsRepository;
@@ -13,7 +14,6 @@ import java.math.BigDecimal;
 import java.util.Collection;
 
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toList;
 
 @Singleton
 public class TransferService {
@@ -39,7 +39,7 @@ public class TransferService {
         receiver.deposit(amount);
     }
 
-    public void transfer(Long senderAccountId, Address address, BigDecimal amount) {
+    public TransferId transfer(Long senderAccountId, Address address, BigDecimal amount) {
         Account sender = getAccountOrThrowException(senderAccountId);
         WithdrawalId withdrawalId = new WithdrawalId(randomUUID());
         sender.requestWithdrawal(amount, withdrawalId, address);
@@ -49,6 +49,7 @@ public class TransferService {
         } catch (Exception e) {
             sender.failWithdrawal(withdrawalId);
         }
+        return new TransferId(withdrawalId.value());
     }
 
     private Account getAccountOrThrowException(Long accountId) {
@@ -58,7 +59,7 @@ public class TransferService {
     public Collection<ExternalTransferDetails> getExternalTransfers(Long accountId) {
         Account account = getAccountOrThrowException(accountId);
         return account.getRequestedExternalWithdrawals().values().stream()
-                .map(x -> new ExternalTransferDetails(x.getAmount(), x.getWithdrawalState().name(), x.getAddress().value()))
-                .collect(toList());
+                .map(x -> new ExternalTransferDetails(x.getWithdrawalId().value(), x.getAmount(), x.getWithdrawalState().name(), x.getAddress().value()))
+                .toList();
     }
 }
