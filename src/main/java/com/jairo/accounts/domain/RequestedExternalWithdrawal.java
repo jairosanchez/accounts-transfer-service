@@ -5,6 +5,7 @@ import com.jairo.accounts.service.WithdrawalService.WithdrawalId;
 import com.jairo.accounts.service.WithdrawalService.WithdrawalState;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class RequestedExternalWithdrawal {
     private final WithdrawalId withdrawalId;
@@ -34,6 +35,19 @@ public class RequestedExternalWithdrawal {
 
     public WithdrawalState getWithdrawalState() {
         return withdrawalState;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        RequestedExternalWithdrawal that = (RequestedExternalWithdrawal) o;
+        return Objects.equals(withdrawalId, that.withdrawalId) && Objects.equals(amount, that.amount) && Objects.equals(address, that.address) && withdrawalState == that.withdrawalState;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(withdrawalId, amount, address, withdrawalState);
     }
 
     public Address getAddress() {

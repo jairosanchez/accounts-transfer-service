@@ -34,10 +34,16 @@ public class Account {
     }
 
     public synchronized void deposit(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Can't deposit amount <= 0");
+        }
         balance = balance.add(amount);
     }
 
     public synchronized void withdraw(BigDecimal amount) {
+        if (amount.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new IllegalArgumentException("Can't withdraw amount <= 0");
+        }
         if (balance.compareTo(amount) >= 0) {
             balance = balance.subtract(amount);
         } else {
