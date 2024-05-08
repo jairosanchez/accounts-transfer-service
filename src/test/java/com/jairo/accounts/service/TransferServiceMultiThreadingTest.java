@@ -116,9 +116,9 @@ class TransferServiceMultiThreadingTest {
 
         assertThat(sender.getBalance()).isEqualTo(BigDecimal.valueOf(4950));
         assertThat(sender.getRequestedExternalWithdrawals().values()).hasSize(100);
-        assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::getAmount)
+        assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::amount)
                 .containsExactlyInAnyOrder(amountsToTransfer.toArray(new BigDecimal[0]));
-        assertThat(sender.getRequestedExternalWithdrawals().values()).describedAs("All request are in processing state").allMatch(x -> x.getWithdrawalState() == PROCESSING);
+        assertThat(sender.getRequestedExternalWithdrawals().values()).describedAs("All request are in processing state").allMatch(x -> x.withdrawalState() == PROCESSING);
     }
 
     @Test
@@ -169,11 +169,11 @@ class TransferServiceMultiThreadingTest {
 
         BigDecimal amountOfCompletedTransferRequests = BigDecimal.ZERO;
         for (RequestedExternalWithdrawal r : sender.getRequestedExternalWithdrawals().values()) {
-            if (!withdrawalService.failedWithdrawalIds.contains(r.getWithdrawalId())) {
-                assertThat(r.getWithdrawalState()).isEqualTo(COMPLETED);
-                amountOfCompletedTransferRequests = amountOfCompletedTransferRequests.add(r.getAmount());
+            if (!withdrawalService.failedWithdrawalIds.contains(r.withdrawalId())) {
+                assertThat(r.withdrawalState()).isEqualTo(COMPLETED);
+                amountOfCompletedTransferRequests = amountOfCompletedTransferRequests.add(r.amount());
             } else {
-                assertThat(r.getWithdrawalState()).isEqualTo(FAILED);
+                assertThat(r.withdrawalState()).isEqualTo(FAILED);
             }
         }
 
@@ -181,7 +181,7 @@ class TransferServiceMultiThreadingTest {
     }
 
     private boolean isFinalState(RequestedExternalWithdrawal requestedExternalWithdrawal) {
-        return requestedExternalWithdrawal.getWithdrawalState() != PROCESSING;
+        return requestedExternalWithdrawal.withdrawalState() != PROCESSING;
     }
 
 

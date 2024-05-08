@@ -61,7 +61,7 @@ public class TransferService {
     public Collection<ExternalTransferDetails> getExternalTransfers(Long accountId) {
         Account account = getAccountOrThrowException(accountId);
         return account.getRequestedExternalWithdrawals().values().stream()
-                .map(x -> new ExternalTransferDetails(x.getWithdrawalId().value(), x.getAmount(), x.getWithdrawalState().name(), x.getAddress().value()))
+                .map(x -> new ExternalTransferDetails(x.withdrawalId().value(), x.amount(), x.withdrawalState().name(), x.address().value()))
                 .toList();
     }
 

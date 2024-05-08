@@ -56,7 +56,7 @@ class ExternalTransferMonitoringServiceTest {
 
         externalTransferMonitoringService.initiateResponseMonitoring(sender, withdrawalId);
 
-        await().atMost(2, TimeUnit.SECONDS).until(() -> sender.getRequestedExternalWithdrawals().get(withdrawalId).getWithdrawalState() == finalWithdrawalState);
+        await().atMost(2, TimeUnit.SECONDS).until(() -> sender.getRequestedExternalWithdrawals().get(withdrawalId).withdrawalState() == finalWithdrawalState);
         if (finalWithdrawalState == COMPLETED) {
             assertThat(sender.getBalance()).isEqualTo(BigDecimal.valueOf(500));
         }

@@ -58,7 +58,7 @@ public class Account {
 
     public synchronized void failWithdrawal(WithdrawalId withdrawalId) {
         RequestedExternalWithdrawal requestedExternalWithdrawal = updateWithdrawalRequestState(withdrawalId, WithdrawalState.FAILED);
-        balance = balance.add(requestedExternalWithdrawal.getAmount());
+        balance = balance.add(requestedExternalWithdrawal.amount());
     }
 
     public void completeWithdrawal(WithdrawalId withdrawalId) {
@@ -70,7 +70,9 @@ public class Account {
         if (requestedExternalWithdrawal == null) {
             throw new IllegalArgumentException("No withdrawal request found for id " + withdrawalId);
         } else {
-            requestedExternalWithdrawal.setWithdrawalState(withdrawalState);
+            requestedExternalWithdrawals.computeIfPresent(withdrawalId, (key, existingValue) ->
+                    new RequestedExternalWithdrawal(existingValue.withdrawalId(), withdrawalState, existingValue.amount(), existingValue.address())
+            );
             return requestedExternalWithdrawal;
         }
     }

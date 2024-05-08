@@ -90,7 +90,7 @@ class TransferServiceTest {
         assertThat(transferId).isNotNull();
         assertThat(transferId.value()).isNotNull();
         assertThat(sender.getRequestedExternalWithdrawals()).hasSize(1);
-        assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::getAmount, RequestedExternalWithdrawal::getWithdrawalState)
+        assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::amount, RequestedExternalWithdrawal::withdrawalState)
                 .containsExactlyInAnyOrder(Tuple.tuple(amountToWithdraw, PROCESSING));
         assertThat(sender.getBalance()).isEqualTo(BigDecimal.valueOf(5));
         verify(externalTransferMonitoringService).initiateResponseMonitoring(same(sender), any(WithdrawalId.class));
@@ -110,7 +110,7 @@ class TransferServiceTest {
         transferService.transfer(sender.getId(), receiverAddress, amountToWithdraw);
 
         assertThat(sender.getRequestedExternalWithdrawals()).hasSize(1);
-        assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::getAmount, RequestedExternalWithdrawal::getWithdrawalState)
+        assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::amount, RequestedExternalWithdrawal::withdrawalState)
                 .containsExactlyInAnyOrder(Tuple.tuple(amountToWithdraw, FAILED));
         assertThat(sender.getBalance()).isEqualTo(BigDecimal.valueOf(100));
         verifyNoInteractions(externalTransferMonitoringService);

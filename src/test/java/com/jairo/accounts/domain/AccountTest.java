@@ -1,5 +1,6 @@
 package com.jairo.accounts.domain;
 
+import com.jairo.accounts.service.WithdrawalService;
 import com.jairo.accounts.service.WithdrawalService.Address;
 import com.jairo.accounts.service.WithdrawalService.WithdrawalId;
 import org.junit.jupiter.api.Test;
@@ -66,5 +67,38 @@ class AccountTest {
 
         assertThatExceptionOfType(IllegalArgumentException.class)
                 .isThrownBy(() -> account.requestWithdrawal(BigDecimal.valueOf(amount), new WithdrawalId(UUID.randomUUID()), new Address("address")));
+    }
+
+    @Test
+    void failWithdrawalUpdatesStateAndAmountIsRolledBackInToBalance() {
+        BigDecimal initialBalance = BigDecimal.TEN;
+        Account account = new Account(1l, initialBalance);
+        WithdrawalId withdrawalId = new WithdrawalId(UUID.randomUUID());
+        BigDecimal amount = BigDecimal.ONE;
+        Address address = new Address("address");
+        account.requestWithdrawal(amount, withdrawalId, address);
+
+        account.failWithdrawal(withdrawalId);
+
+        assertThat(account.getBalance()).isEqualTo(initialBalance);
+        assertThat(account.getRequestedExternalWithdrawals()).hasSize(1)
+                .containsKey(withdrawalId)
+                .containsValue(new RequestedExternalWithdrawal(withdrawalId, WithdrawalService.WithdrawalState.FAILED, amount, address));
+    }
+
+    @Test
+    void completeWithdrawalUpdatesStateAndAmountIsNotRolledBack() {
+        BigDecimal initialBalance = BigDecimal.TEN;
+        Account account = new Account(1l, initialBalance);
+        WithdrawalId withdrawalId = new WithdrawalId(UUID.randomUUID());
+        BigDecimal amount = BigDecimal.ONE;
+        Address address = new Address("address");
+        account.requestWithdrawal(amount, withdrawalId, address);
+
+        account.completeWithdrawal(withdrawalId);
+        assertThat(account.getBalance()).isEqualTo(initialBalance.subtract(amount));
+        assertThat(account.getRequestedExternalWithdrawals()).hasSize(1)
+                .containsKey(withdrawalId)
+                .containsValue(new RequestedExternalWithdrawal(withdrawalId, WithdrawalService.WithdrawalState.COMPLETED, amount, address));
     }
 }
