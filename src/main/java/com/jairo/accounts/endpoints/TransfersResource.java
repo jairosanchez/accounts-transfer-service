@@ -37,7 +37,7 @@ public class TransfersResource {
     }
 
     public void internalTransfer(Context ctx) {
-        run(context -> {
+        runMappingExceptionsToResponseHttpCode(context -> {
             Long senderAccountId = context.pathParamAsClass(PATH_PARAM_SENDER_ACCOUNT_ID, Long.class).get();
             Long receiverAccountId = context.pathParamAsClass(PATH_PARAM_RECEIVER_ACCOUNT_ID, Long.class).get();
             BigDecimal amount = context.pathParamAsClass(PATH_PARAM_AMOUNT, BigDecimal.class).get();
@@ -46,7 +46,7 @@ public class TransfersResource {
     }
 
     public void externalTransfer(Context ctx) {
-        run(context -> {
+        runMappingExceptionsToResponseHttpCode(context -> {
             Long senderAccountId = context.pathParamAsClass(PATH_PARAM_SENDER_ACCOUNT_ID, Long.class).get();
             String address = context.pathParamAsClass(PATH_PARAM_ADDRESS, String.class).get();
             BigDecimal amount = context.pathParamAsClass(PATH_PARAM_AMOUNT, BigDecimal.class).get();
@@ -56,7 +56,7 @@ public class TransfersResource {
     }
 
     public void listExternalTransfers(Context ctx) {
-        run(context -> {
+        runMappingExceptionsToResponseHttpCode(context -> {
             Long accountId = context.pathParamAsClass(PATH_PARAM_ACCOUNT_ID, Long.class).get();
             Collection<ExternalTransferDetails> data = transferService.getExternalTransfers(accountId);
             context.json(data);
@@ -64,7 +64,7 @@ public class TransfersResource {
     }
 
     public void getExternalTransfer(Context ctx) {
-        run(context -> {
+        runMappingExceptionsToResponseHttpCode(context -> {
             Long accountId = context.pathParamAsClass(PATH_PARAM_ACCOUNT_ID, Long.class).get();
             UUID transferId = context.pathParamAsClass(PATH_PARAM_TRANSFER_ID, UUID.class).get();
             ExternalTransferDetails data = transferService.getExternalTransfer(accountId, new TransferId(transferId));
@@ -73,7 +73,7 @@ public class TransfersResource {
 
     }
 
-    private void run(Consumer<Context> consumer, Context ctx) {
+    private void runMappingExceptionsToResponseHttpCode(Consumer<Context> consumer, Context ctx) {
         try {
             consumer.accept(ctx);
         } catch (AccountNotFoundException | TransferIdNotFoundException e) {
