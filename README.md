@@ -5,6 +5,36 @@
 2. Run app (app runs on port 8080):
    ` java -jar .\target\accounts-transfer-service-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
+### Real use case flow:
+
+#### Create 2 accounts with initial balance:
+
+`curl -X POST http://localhost:8080/accounts/12345.50`
+
+>`{"accountId":1}`
+
+`curl -X POST http://localhost:8080/accounts/10000.25`
+
+> `{"accountId":2}`
+
+#### Internal transfer between accounts:
+`curl -X POST http://localhost:8080/accounts/transfer/internal/from/1/to/2/345.50`
+
+#### List external transfers:
+`curl -X GET http://localhost:8080/accounts/1/transfers/external`
+
+#### External transfer to address:
+`curl -X POST http://localhost:8080/accounts/transfer/external/from/1/to/address-1/500`
+
+> `{"transferId":"153fa564-f9ff-497c-a28c-95c97b09ca6c"}`
+
+#### Get transfer state:
+`curl -X GET http://localhost:8080/accounts/1/transfer/external/153fa564-f9ff-497c-a28c-95c97b09ca6c`
+
+>`{"transferId":"153fa564-f9ff-497c-a28c-95c97b09ca6c","amount":500,"status":"COMPLETED","address":"address-1"}`
+
+
+
 ### Technical notes:
 
 Given it was hinted that spring is not a preferred option, I decided to give it a go with javalin + google guice (for dependency injection). I’m quite happy with how easy and intuitive it was to create a javalin app and writing integration test, so definitely I’ll consider using it in future.
