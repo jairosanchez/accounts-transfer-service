@@ -13,6 +13,7 @@ public class AppModule extends AbstractModule {
 
     @Override
     protected void configure() {
+        //TODO: read params from external config
         bind(Config.class).toInstance(new Config(100, 50));
         bind(WithdrawalService.class).to(WithdrawalServiceStub.class);
         bind(ExternalTransferMonitoringService.class);

@@ -47,10 +47,12 @@ public class TransferService {
         sender.requestWithdrawal(amount, withdrawalId, address);
         try {
             withdrawalService.requestWithdrawal(withdrawalId, address, amount);
-            externalTransferMonitoringService.initiateResponseMonitoring(sender, withdrawalId);
         } catch (Exception e) {
+            //even if withdrawal request hasn't really been sent to external service, we track it as FAILED in the audit.
             sender.failWithdrawal(withdrawalId);
+            throw e;
         }
+        externalTransferMonitoringService.initiateResponseMonitoring(sender, withdrawalId);
         return new TransferId(withdrawalId.value());
     }
 

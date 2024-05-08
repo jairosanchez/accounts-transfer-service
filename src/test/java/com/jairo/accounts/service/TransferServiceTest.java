@@ -107,7 +107,7 @@ class TransferServiceTest {
         doThrow(new RuntimeException("Error connecting to external withdrawal service")).when(withdrawalService)
                 .requestWithdrawal(any(WithdrawalId.class), any(Address.class), any(BigDecimal.class));
 
-        transferService.transfer(sender.getId(), receiverAddress, amountToWithdraw);
+        assertThatExceptionOfType(RuntimeException.class).isThrownBy(() -> transferService.transfer(sender.getId(), receiverAddress, amountToWithdraw));
 
         assertThat(sender.getRequestedExternalWithdrawals()).hasSize(1);
         assertThat(sender.getRequestedExternalWithdrawals().values()).extracting(RequestedExternalWithdrawal::amount, RequestedExternalWithdrawal::withdrawalState)
