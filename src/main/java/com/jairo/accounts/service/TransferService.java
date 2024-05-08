@@ -4,6 +4,7 @@ import com.jairo.accounts.domain.Account;
 import com.jairo.accounts.domain.TransferId;
 import com.jairo.accounts.endpoints.dto.ExternalTransferDetails;
 import com.jairo.accounts.exception.AccountNotFoundException;
+import com.jairo.accounts.exception.TransferIdNotFoundException;
 import com.jairo.accounts.repository.AccountsRepository;
 import com.jairo.accounts.service.WithdrawalService.Address;
 import com.jairo.accounts.service.WithdrawalService.WithdrawalId;
@@ -12,6 +13,7 @@ import jakarta.inject.Singleton;
 
 import java.math.BigDecimal;
 import java.util.Collection;
+import java.util.Objects;
 
 import static java.util.UUID.randomUUID;
 
@@ -61,5 +63,11 @@ public class TransferService {
         return account.getRequestedExternalWithdrawals().values().stream()
                 .map(x -> new ExternalTransferDetails(x.getWithdrawalId().value(), x.getAmount(), x.getWithdrawalState().name(), x.getAddress().value()))
                 .toList();
+    }
+
+    public ExternalTransferDetails getExternalTransfer(Long accountId, TransferId transferId) {
+        return getExternalTransfers(accountId).stream()
+                .filter(x -> Objects.equals(x.transferId(), transferId.value()))
+                .findFirst().orElseThrow(() -> new TransferIdNotFoundException("Transfer with id " + transferId.value() + " not found"));
     }
 }
